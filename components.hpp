@@ -70,3 +70,17 @@ struct Shader : Component
     : Component("Shader"), shader(shader), strength(strength)
     {}
 };
+
+struct Home : Component
+{
+    Home()
+    : Component("Home")
+    {}
+};
+
+struct Tutorial : Component
+{
+    Tutorial()
+    : Component("Tutorial")
+    {}
+};

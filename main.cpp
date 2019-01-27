@@ -13,6 +13,7 @@ int main()
     sf::Shader shader;
     shader.loadFromFile("hit.frag", sf::Shader::Fragment);
     shader.setUniform("screenHeight",(float)((int)(screenSize.height)));
+    float hitMag = 0.0f;
 
     DrawSystem drawSystem(&entityManager, &window);
     MovementSystem movementSystem(&entityManager);
@@ -31,11 +32,7 @@ int main()
     player.move(screenSize.width/2 - player.getSize().x/2,
                 screenSize.height/2 - player.getSize().y/2);
 
-    sf::RectangleShape wall;
-    wall.setFillColor(sf::Color::Black);
-    wall.move(400.f,400.f);
-    wall.setSize(sf::Vector2f(1000.f,600.f));
-
+    
     // Player Avatar
     entityManager.addEntity({new Drawable(&player),
                              new Velocity(0.0f,0.0f),
@@ -43,11 +40,31 @@ int main()
                              new PlayerController(),
                              new Collider(&player)});
 
-    // Outer Wall 1
-    entityManager.addEntity({new Drawable(&wall),
-                             new Transform(&wall),
-                             new Collider(&wall),
-                             new Shader(&shader)});
+    // Outer Wall North
+    sf::RectangleShape nwall;
+    nwall.setFillColor(sf::Color::Black);
+    nwall.move(screenSize.width*(2.5f/100.0f),
+               screenSize.height*(2.5f/100.0f));
+    nwall.setSize(sf::Vector2f(screenSize.width*(95.0f/100.0f),
+                               screenSize.height*(2.5f/100.0f)));
+
+    entityManager.addEntity({new Drawable(&nwall),
+                             new Transform(&nwall),
+                             new Collider(&nwall),
+                             new Shader(&shader, &hitMag)});
+
+    // Outer Wall South
+    sf::RectangleShape swall;
+    swall.setFillColor(sf::Color::Black);
+    swall.move(screenSize.width*(2.5f/100.0f),
+               screenSize.height*(95.0f/100.0f));
+    swall.setSize(sf::Vector2f(screenSize.width*(95.0f/100.0f),
+                               screenSize.height*(2.5f/100.0f)));
+
+    entityManager.addEntity({new Drawable(&swall),
+                             new Transform(&swall),
+                             new Collider(&swall),
+                             new Shader(&shader, &hitMag)});
 
     for(;
         window.isOpen();

@@ -88,6 +88,6 @@ void main()
 {
     float noise = pnoise(gl_FragCoord.yx, vec2(sin(time),cos(time)));
     float magnitude = distance(gl_FragCoord.xy, vec2(source.x,screenHeight-source.y));
-    float value = 1.0f - (round(noise) * clamp(floor(strength/magnitude),0.0f,1.0f));
+    float value = /*1.0f -*/ (round(noise) * clamp(floor(strength/magnitude),0.0f,1.0f));
     gl_FragColor = vec4(value,value,value,1.0f);
 }

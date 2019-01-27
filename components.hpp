@@ -64,6 +64,7 @@ struct Collider : Component
 struct Shader : Component
 {
     sf::Shader* shader;
+    float strength;
 
     Shader(sf::Shader* shader)
     : Component("Shader"), shader(shader)

@@ -92,6 +92,7 @@ void MovementSystem::tick()
                 obb2.setSize(sf::Vector2f(shaPtr->getGlobalBounds().width,shaPtr->getGlobalBounds().height));
 
                 sf::Vector2f mtv;
+                Shader* shader = ((Shader*)(entityManager->getComponent(*jtr,"Shader")));
 
                 if(testCollision(obb1,obb2,mtv)) // process collision result
                 {
@@ -99,13 +100,19 @@ void MovementSystem::tick()
                     obb1.move(mtv);
                     v->x *= bounce;
                     v->y *= bounce;
-
-                    sf::Shader* shader = ((Shader*)(entityManager->getComponent(*jtr,"Shader")))->shader;
+                    
                     if(shader == nullptr) continue;
-                    shader->setUniform("source",
+                    shader->shader->setUniform("source",
                             sf::Vector2f(obb1.getPosition().x + obb1.getSize().x*0.5f,
                                          obb1.getPosition().y + obb1.getSize().y*0.5f));
-                    shader->setUniform("strength", 1.0f);
+                    shader->strength = 250.0f;
+                }
+
+                shader->shader->setUniform("strength", shader->strength);
+                shader->strength -= 1.0f;
+                if(shader->strength < 0.0f)
+                {
+                    shader->strength = 0.0f;
                 }
             }
         }

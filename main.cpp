@@ -11,6 +11,7 @@ int main()
 
     sf::Shader shader;
     shader.loadFromFile("hit.frag", sf::Shader::Fragment);
+    shader.setUniform("screenHeight",(float)((int)(sf::VideoMode::getFullscreenModes()[0].height)));
 
     DrawSystem drawSystem(&entityManager, &window);
     MovementSystem movementSystem(&entityManager);
@@ -28,7 +29,7 @@ int main()
     sf::RectangleShape wall;
     wall.setFillColor(sf::Color::Black);
     wall.move(400.f,400.f);
-    wall.setSize(sf::Vector2f(1000.f,1000.f));
+    wall.setSize(sf::Vector2f(1000.f,600.f));
 
     entityManager.addEntity({new Drawable(&shape),
                              new Velocity(0.0f,0.0f),

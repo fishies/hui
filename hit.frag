@@ -82,13 +82,14 @@ float pnoise(vec2 P, vec2 rep)
 uniform float strength;
 uniform vec2 source;
 uniform float time;
+uniform float screenHeight;
 
 void main()
 {
     float noise = pnoise(gl_FragCoord.yx, vec2(sin(time),cos(time)));
-    float magnitude = distance(gl_FragCoord.xy, source);
+    float magnitude = distance(gl_FragCoord.xy, vec2(source.x,screenHeight-source.y));
     vec4 pixel = vec4(magnitude, magnitude, magnitude, 1.0f);
-    float value = round(noise*strength) * clamp(floor(250.0f/magnitude),0.0f,1.0f);
+    float value = round(noise*strength) * clamp(floor(200.0f/magnitude),0.0f,1.0f);
     gl_FragColor = vec4(value,value,value,1.0f);//vec4(strength, strength, strength, 1.0f); //gl_FragCoord * pixel;
     //strength -= 0.0625f;
 }

@@ -16,22 +16,38 @@ struct Drawable : Component
     {}
 };
 
-struct Position : Component
+struct PlayerController : Component
+{
+    PlayerController()
+    : Component("PlayerController")
+    {}
+};
+
+struct WorldPosition : Component
 {
     float x;
     float y;
 
-    Position(float x = 0.0f, float y = 0.0f)
-    : Component("Position"), x(x), y(y)
+    WorldPosition(float x = 0.0f, float y = 0.0f)
+    : Component("WorldPosition"), x(x), y(y)
+    {}
+};
+
+struct Transform : Component
+{
+    sf::Transformable* transformable;
+
+    Transform(sf::Transformable* transformable)
+    : Component("Transform"), transformable(transformable)
     {}
 };
 
 struct Velocity : Component
 {
-    int x;
-    int y;
+    float x;
+    float y;
     
-    Velocity(int v_x = 0, int v_y = 0)
+    Velocity(int v_x = 0.0f, int v_y = 0.0f)
     : Component("Velocity"), x(v_x), y(v_y)
     {}
 };

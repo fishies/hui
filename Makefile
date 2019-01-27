@@ -2,6 +2,13 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -fext-numeric-literals
 LDLIBS = -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system
 
+all:
+	rm *.o
+	make hui
+
+clean:
+	rm *.o
+
 hui: main.o
 	$(CXX) $(CXXFLAGS) main.o systems.o ecs.o -o $@ $(LDLIBS)
 

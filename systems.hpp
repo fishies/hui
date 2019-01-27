@@ -11,3 +11,19 @@ public:
 
     void tick();
 };
+
+class MovementSystem : System
+{
+public:
+    MovementSystem(EntityManager* entityAdmin);
+
+    void tick();
+};
+
+class InputSystem : System
+{
+public:
+    InputSystem(EntityManager* entityAdmin);
+    
+    void tick();
+};

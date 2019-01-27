@@ -10,16 +10,38 @@ int main()
                             "hui", sf::Style::Fullscreen);
 
     DrawSystem drawSystem(&entityManager, &window);
-    
+    MovementSystem movementSystem(&entityManager);
+    InputSystem inputSystem(&entityManager);
+
+    sf::Clock clock;
+    const sf::Time timePerFrame = sf::seconds(1.0f / 60.0f);
+    sf::Time timeSinceLastUpdate = sf::Time::Zero;
+
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Black);
-    entityManager.addEntity({new Drawable(&shape)});
+    entityManager.addEntity({new Drawable(&shape),
+                             new Velocity(0.0f,0.0f),
+                             new Transform(&shape),
+                             new PlayerController()});
 
-    for(sf::Event event;
+    for(;
         window.isOpen();
         )
     {
-        for(;window.pollEvent(event);)
+        sf::Time dt = clock.restart();
+        for(timeSinceLastUpdate += dt;
+            timeSinceLastUpdate > timePerFrame;
+            timeSinceLastUpdate -= timePerFrame)
+        {
+            window.clear(sf::Color::White);
+            drawSystem.tick();
+            inputSystem.tick();
+            movementSystem.tick();
+            window.display();
+        }
+
+
+        for(sf::Event event;window.pollEvent(event);)
         {
             switch(event.type)
             {
@@ -30,9 +52,6 @@ int main()
                     break;
             }
         }
-        window.clear(sf::Color::White);
-        drawSystem.tick();
-        window.display();
     }
     return 0;
 }

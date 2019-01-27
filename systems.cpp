@@ -4,7 +4,51 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
-#include <iostream>
+void addHWall(EntityManager &entityManager, const sf::VideoMode &screenSize, sf::Shader *shader, float *hitMag, int x, int y)
+{
+    if(y == 0) return;
+    sf::RectangleShape* wall = new sf::RectangleShape();
+    wall->setFillColor(sf::Color::White);
+    wall->move(screenSize.width*(5.0f/100.0f),screenSize.height*(5.0f/100.0f));
+    wall->move(screenSize.width*(10.0f/100.0f)*x,screenSize.height*(12.85715f/100.0f)*y);
+    wall->setSize(sf::Vector2f(screenSize.width*(10.0f/100.0f),
+                               screenSize.height*(2.0f/100.0f)));
+    entityManager.addEntity({new Drawable(wall),
+                             new Transform(wall),
+                             new Collider(wall),
+                             new Shader(shader, hitMag),
+                             new Level()});
+}
+
+void addVWall(EntityManager &entityManager, const sf::VideoMode &screenSize, sf::Shader *shader, float *hitMag, int x, int y)
+{
+    sf::RectangleShape* wall = new sf::RectangleShape();
+    wall->setFillColor(sf::Color::White);
+    wall->move(screenSize.width*(4.0f/100.0f),screenSize.height*(5.0f/100.0f));
+    if(x > 7) x = 7;
+    wall->move(screenSize.width*(10.0f/100.0f)*(x+1),screenSize.height*(12.85715f/100.0f)*y);
+    wall->setSize(sf::Vector2f(screenSize.width*(2.0f/100.0f),
+                               screenSize.height*(12.85715f/100.0f)));
+    entityManager.addEntity({new Drawable(wall),
+                             new Transform(wall),
+                             new Collider(wall),
+                             new Shader(shader, hitMag),
+                             new Level()});
+}
+
+void generateMaze(EntityManager &entityManager, const sf::VideoMode &screenSize, sf::Shader *shader, float *hitMag, const std::string &dna)
+{
+    for(int i = 0; i < 9; ++i)
+    {
+        for(int j = 0; j < 7; ++j)
+        {
+            if((dna.at(i+j*9)-'0')&1)
+                addVWall(entityManager, screenSize, shader, hitMag, i, j);
+            if((dna.at(i+j*9)-'0')&2)
+                addHWall(entityManager, screenSize, shader, hitMag, i, j);
+        }
+    }
+}
 
 DrawSystem::DrawSystem(EntityManager* entityAdmin, sf::RenderWindow* target) : System(entityAdmin), target(target)
 {
@@ -29,12 +73,83 @@ void DrawSystem::tick()
     }
 }
 
+Reset::Reset(EntityManager *entityAdmin) : System(entityAdmin)
+{
+    subscribe("Home");
+    subscribe("Tutorial");
+    subscribe("PlayerController");
+    subscribe("Level");
+}
+
+#include <iostream>
+
+void Reset::tick()
+{
+    bool reset = false;
+    for(auto itr = entitiesWithComponent["Home"].begin();
+        itr != entitiesWithComponent["Home"].end(); ++itr)
+    {
+        Drawable* home = (Drawable*)(entityManager->getComponent(*itr,"Drawable"));
+        if(home == nullptr) continue;
+        for(auto jtr = entitiesWithComponent["PlayerController"].begin();
+            jtr != entitiesWithComponent["PlayerController"].end(); ++jtr)
+        {
+            PlayerController* control = (PlayerController*)(entityManager->getComponent(*jtr,"PlayerController"));
+            if(control != nullptr && !(control->inGame))
+            {
+                return;
+            }
+
+            Drawable* pc = (Drawable*)(entityManager->getComponent(*jtr,"PlayerController"));
+            if(pc == nullptr) continue;
+            if(((sf::RectangleShape*)(home->drawable))->getGlobalBounds().intersects
+                (((sf::RectangleShape*)(pc->drawable))->getGlobalBounds()))
+            {
+                reset = true;
+            }
+        }
+    }
+    if(reset)
+    {
+        //make tutorial visible
+        for(auto itr = entitiesWithComponent["Tutorial"].begin();
+            itr != entitiesWithComponent["Tutorial"].end(); ++itr)
+        {
+            Drawable* tutUI = (Drawable*)(entityManager->getComponent(*itr,"Drawable"));
+            if(tutUI != nullptr) tutUI->visible = true;
+        }
+        //reset player controller and position of player
+        /*
+        for(auto itr = entitiesWithComponent["PlayerController"].begin();
+            itr != entitiesWithComponent["PlayerController"].end(); ++itr)
+        {
+            ((PlayerController*)(entityManager->getComponent(*itr,"PlayerController")))->inGame = false;
+            
+            Transform* playerTransform = (Transform*)(entityManager->getComponent(*itr,"Transform"));
+            if(playerTransform != nullptr)
+            {
+                playerTransform->transformable->setPosition(xOrigin,yOrigin);
+            }
+        }
+        */
+        //erase level
+        /*
+        for(auto itr = entitiesWithComponent["Level"].begin();
+            itr != entitiesWithComponent["Level"].end(); ++itr)
+        {
+            entityManager->removeEntity(*itr);
+        }
+        */
+    }
+}
+
 MovementSystem::MovementSystem(EntityManager *entityAdmin) : System(entityAdmin)
 {
-    subscribe("WorldPosition");
     subscribe("Transform");
     subscribe("Velocity");
     subscribe("Collider");
+    subscribe("PlayerController");
+    subscribe("Tutorial");
 }
 
 void MovementSystem::tick()
@@ -100,6 +215,21 @@ void MovementSystem::tick()
 
                 if(testCollision(obb1,obb2,mtv)) // process collision result
                 {
+                    PlayerController* pc = ((PlayerController*)(entityManager->getComponent(*itr,"PlayerController")));
+                    if(pc != nullptr && !(pc->inGame))
+                    {
+                        pc->inGame = true;
+                        generateMaze(*entityManager, screenSize, shdr, hitMag,
+                        "000100010032122310202313010122001230112101100212013030030300220");
+                        for(auto ktr = entitiesWithComponent["Tutorial"].begin();
+                            ktr != entitiesWithComponent["Tutorial"].end(); ++ktr)
+                        {
+                            Drawable* viz = (Drawable*)(entityManager->getComponent(*ktr,"Drawable"));
+                            if(viz == nullptr) continue;
+                            viz->visible = false;
+                        }
+                    }
+
                     transform->transformable->move(mtv);
                     obb1.move(mtv);
                     v->x *= bounce;
@@ -137,12 +267,21 @@ InputSystem::InputSystem(EntityManager *entityAdmin) : System(entityAdmin)
 
 void InputSystem::tick()
 {
-    const float dv = 1.375f;
+    float dv = 1.375f;
     const float vcap = 5.0f;
     for(auto itr = entitiesWithComponent["PlayerController"].begin();
         itr != entitiesWithComponent["PlayerController"].end(); ++itr)
     {
         Velocity* v = (Velocity*)(entityManager->getComponent(*itr,"Velocity"));
+        if(((PlayerController*)(entityManager->getComponent(*itr,"PlayerController")))->inGame)
+        {
+            dv = 1.375f;
+        }
+        else
+        {
+            dv = 25.0f;
+        }
+        
         if(v != nullptr)
         {
             float vx = 0.0f;

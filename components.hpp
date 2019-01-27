@@ -18,20 +18,12 @@ struct Drawable : Component
 
 struct PlayerController : Component
 {
+    bool inGame;
+
     PlayerController()
-    : Component("PlayerController")
+    : Component("PlayerController"), inGame(false)
     {}
 };
-
-// struct WorldPosition : Component
-// {
-//     float x;
-//     float y;
-
-//     WorldPosition(float x = 0.0f, float y = 0.0f)
-//     : Component("WorldPosition"), x(x), y(y)
-//     {}
-// };
 
 struct Transform : Component
 {
@@ -82,5 +74,12 @@ struct Tutorial : Component
 {
     Tutorial()
     : Component("Tutorial")
+    {}
+};
+
+struct Level : Component
+{
+    Level()
+    : Component("Level")
     {}
 };

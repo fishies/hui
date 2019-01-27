@@ -3,50 +3,6 @@
 #include "systems.hpp"
 #include <SFML/Graphics.hpp>
 
-void addHWall(EntityManager &entityManager, const sf::VideoMode &screenSize, sf::Shader *shader, float *hitMag, int x, int y)
-{
-    if(y == 0) return;
-    sf::RectangleShape* wall = new sf::RectangleShape();
-    wall->setFillColor(sf::Color::White);
-    wall->move(screenSize.width*(5.0f/100.0f),screenSize.height*(5.0f/100.0f));
-    wall->move(screenSize.width*(10.0f/100.0f)*x,screenSize.height*(12.85715f/100.0f)*y);
-    wall->setSize(sf::Vector2f(screenSize.width*(10.0f/100.0f),
-                               screenSize.height*(2.0f/100.0f)));
-    entityManager.addEntity({new Drawable(wall),
-                             new Transform(wall),
-                             new Collider(wall),
-                             new Shader(shader, hitMag)});
-}
-
-void addVWall(EntityManager &entityManager, const sf::VideoMode &screenSize, sf::Shader *shader, float *hitMag, int x, int y)
-{
-    sf::RectangleShape* wall = new sf::RectangleShape();
-    wall->setFillColor(sf::Color::White);
-    wall->move(screenSize.width*(4.0f/100.0f),screenSize.height*(5.0f/100.0f));
-    if(x > 7) x = 7;
-    wall->move(screenSize.width*(10.0f/100.0f)*(x+1),screenSize.height*(12.85715f/100.0f)*y);
-    wall->setSize(sf::Vector2f(screenSize.width*(2.0f/100.0f),
-                               screenSize.height*(12.85715f/100.0f)));
-    entityManager.addEntity({new Drawable(wall),
-                             new Transform(wall),
-                             new Collider(wall),
-                             new Shader(shader, hitMag)});
-}
-
-void generateMaze(EntityManager &entityManager, const sf::VideoMode &screenSize, sf::Shader *shader, float *hitMag, const std::string &dna)
-{
-    for(int i = 0; i < 9; ++i)
-    {
-        for(int j = 0; j < 7; ++j)
-        {
-            if((dna.at(i+j*9)-'0')&1)
-                addVWall(entityManager, screenSize, shader, hitMag, i, j);
-            if((dna.at(i+j*9)-'0')&2)
-                addHWall(entityManager, screenSize, shader, hitMag, i, j);
-        }
-    }
-}
-
 int main()
 {
     EntityManager entityManager;
@@ -61,12 +17,17 @@ int main()
     DrawSystem drawSystem(&entityManager, &window);
     MovementSystem movementSystem(&entityManager);
     InputSystem inputSystem(&entityManager);
+    Reset reset(&entityManager);
 
     sf::Clock clock;
     const sf::Time timePerFrame = sf::seconds(1.0f / 60.0f);
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
 
     sf::Clock shaderClock;
+
+    movementSystem.screenSize = screenSize;
+    movementSystem.shdr = &shader;
+    movementSystem.hitMag = &hitMag;
 
     // Player Avatar
     sf::RectangleShape player;
@@ -75,6 +36,9 @@ int main()
                                 screenSize.width*(1.0f/50.0f)));
     player.move(screenSize.width/2 - player.getSize().x/2,
                 screenSize.height/2 - player.getSize().y/2);
+    
+    reset.xOrigin = screenSize.width/2 - player.getSize().x/2;
+    reset.yOrigin = screenSize.height/2 - player.getSize().y/2;
 
     entityManager.addEntity({new Drawable(&player),
                              new Velocity(0.0f,0.0f),
@@ -92,7 +56,8 @@ int main()
     home.move(screenSize.width/2 - home.getSize().x/2,
               screenSize.height/2 - home.getSize().y/2);
 
-    entityManager.addEntity({new Drawable(&home)});
+    entityManager.addEntity({new Drawable(&home)/*,
+                             new Home()*/});
 
     // Controls
     sf::RectangleShape upBox, downBox, leftBox, rightBox;
@@ -209,8 +174,8 @@ int main()
                              new Collider(&ewall),
                              new Shader(&shader, &hitMag)});
 
-    generateMaze(entityManager, screenSize, &shader, &hitMag,
-    "000100010032122310202313010122001230112101100212013030030300220");
+//    generateMaze(entityManager, screenSize, &shader, &hitMag,
+//    "000100010032122310202313010122001230112101100212013030030300220");
 //   0        1        2        3        4        5        6        
 //  "333333333333333333333333333333333333333333333333333333333333333"
 // 1 vertical
@@ -230,6 +195,7 @@ int main()
             drawSystem.tick();
             inputSystem.tick();
             movementSystem.tick();
+            reset.tick();
             window.display();
         }
 

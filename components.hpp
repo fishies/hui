@@ -67,6 +67,6 @@ struct Shader : Component
     float strength;
 
     Shader(sf::Shader* shader)
-    : Component("Shader"), shader(shader)
+    : Component("Shader"), shader(shader), strength(0)
     {}
 };

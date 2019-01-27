@@ -28,8 +28,8 @@ int main()
     player.setFillColor(sf::Color::Black);
     player.setSize(sf::Vector2f(screenSize.width*(1.0f/50.0f),
                                 screenSize.width*(1.0f/50.0f)));
-    player.move(screenSize.width/2 + player.getSize().x/2,
-                screenSize.height/2 + player.getSize().y/2);
+    player.move(screenSize.width/2 - player.getSize().x/2,
+                screenSize.height/2 - player.getSize().y/2);
 
     sf::RectangleShape wall;
     wall.setFillColor(sf::Color::Black);

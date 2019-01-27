@@ -8,7 +8,7 @@ void addHWall(EntityManager &entityManager, const sf::VideoMode &screenSize, sf:
     sf::RectangleShape* wall = new sf::RectangleShape();
     wall->setFillColor(sf::Color::Black);
     wall->move(screenSize.width*(5.0f/100.0f),screenSize.height*(5.0f/100.0f));
-    wall->move(screenSize.width*(10.0f/100.0f)*x,screenSize.height*(12.75f/100.0f)*y);
+    wall->move(screenSize.width*(10.0f/100.0f)*x,screenSize.height*(12.85715f/100.0f)*y);
     wall->setSize(sf::Vector2f(screenSize.width*(10.0f/100.0f),
                                screenSize.height*(2.0f/100.0f)));
     entityManager.addEntity({new Drawable(wall),
@@ -21,10 +21,11 @@ void addVWall(EntityManager &entityManager, const sf::VideoMode &screenSize, sf:
 {
     sf::RectangleShape* wall = new sf::RectangleShape();
     wall->setFillColor(sf::Color::Black);
-    wall->move(screenSize.width*(5.0f/100.0f),screenSize.height*(5.0f/100.0f));
-    wall->move(screenSize.width*(10.0f/100.0f)*x,screenSize.height*(12.75f/100.0f)*y);
+    wall->move(screenSize.width*(4.0f/100.0f),screenSize.height*(5.0f/100.0f));
+    if(x > 7) x = 7;
+    wall->move(screenSize.width*(10.0f/100.0f)*(x+1),screenSize.height*(12.85715f/100.0f)*y);
     wall->setSize(sf::Vector2f(screenSize.width*(2.0f/100.0f),
-                               screenSize.height*(12.75f/100.0f)));
+                               screenSize.height*(12.85715f/100.0f)));
     entityManager.addEntity({new Drawable(wall),
                              new Transform(wall),
                              new Collider(wall),
@@ -118,13 +119,14 @@ int main()
                              new Collider(&ewall),
                              new Shader(&shader, &hitMag)});
 
-    for(int i = 1; i < 9; ++i)
+    for(int i = 0; i < 9; ++i)
     {
-        addVWall(entityManager, screenSize, &shader, &hitMag, i, 3);
-    }
-    for(int i = 1; i < 7; ++i)
-    {
-        addHWall(entityManager, screenSize, &shader, &hitMag, 3, i);
+        for(int j = 0; j < 7; ++j)
+        {
+            //if(i < 9)
+            addVWall(entityManager, screenSize, &shader, &hitMag, i, j);
+            addHWall(entityManager, screenSize, &shader, &hitMag, i, j);
+        }
     }
 
     for(;

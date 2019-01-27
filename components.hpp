@@ -23,15 +23,15 @@ struct PlayerController : Component
     {}
 };
 
-struct WorldPosition : Component
-{
-    float x;
-    float y;
+// struct WorldPosition : Component
+// {
+//     float x;
+//     float y;
 
-    WorldPosition(float x = 0.0f, float y = 0.0f)
-    : Component("WorldPosition"), x(x), y(y)
-    {}
-};
+//     WorldPosition(float x = 0.0f, float y = 0.0f)
+//     : Component("WorldPosition"), x(x), y(y)
+//     {}
+// };
 
 struct Transform : Component
 {
@@ -58,5 +58,14 @@ struct Collider : Component
 
     Collider(sf::Shape* shape)
     : Component("Collider"), shape(shape)
+    {}
+};
+
+struct Shader : Component
+{
+    sf::Shader* shader;
+
+    Shader(sf::Shader* shader)
+    : Component("Shader"), shader(shader)
     {}
 };

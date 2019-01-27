@@ -9,6 +9,9 @@ int main()
     sf::RenderWindow window(sf::VideoMode::getFullscreenModes()[0],
                             "hui", sf::Style::Fullscreen);
 
+    sf::Shader shader;
+    shader.loadFromFile("hit.frag", sf::Shader::Fragment);
+
     DrawSystem drawSystem(&entityManager, &window);
     MovementSystem movementSystem(&entityManager);
     InputSystem inputSystem(&entityManager);
@@ -17,13 +20,15 @@ int main()
     const sf::Time timePerFrame = sf::seconds(1.0f / 60.0f);
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
 
+    sf::Clock shaderClock;
+
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Black);
 
     sf::RectangleShape wall;
     wall.setFillColor(sf::Color::Black);
     wall.move(400.f,400.f);
-    wall.setSize(sf::Vector2f(200.f,200.f));
+    wall.setSize(sf::Vector2f(1000.f,1000.f));
 
     entityManager.addEntity({new Drawable(&shape),
                              new Velocity(0.0f,0.0f),
@@ -33,7 +38,8 @@ int main()
 
     entityManager.addEntity({new Drawable(&wall),
                              new Transform(&wall),
-                             new Collider(&wall)});
+                             new Collider(&wall),
+                             new Shader(&shader)});
 
     for(;
         window.isOpen();
@@ -45,6 +51,7 @@ int main()
             timeSinceLastUpdate -= timePerFrame)
         {
             window.clear(sf::Color::White);
+            shader.setUniform("time",shaderClock.getElapsedTime().asSeconds());
             drawSystem.tick();
             inputSystem.tick();
             movementSystem.tick();

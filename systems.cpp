@@ -18,9 +18,13 @@ void DrawSystem::tick()
         itr != entitiesWithComponent["Drawable"].end(); ++itr)
     {
         Drawable* current = (Drawable*)(entityManager->getComponent(*itr,"Drawable"));
+        Shader* shader = ((Shader*)(entityManager->getComponent(*itr,"Shader")));
         if(current != nullptr && current->visible)
         {
-            target->draw(*(current->drawable));
+            if(shader != nullptr)
+                target->draw(*(current->drawable),shader->shader);
+            else
+                target->draw(*(current->drawable));
         }
     }
 }
@@ -89,12 +93,19 @@ void MovementSystem::tick()
 
                 sf::Vector2f mtv;
 
-                if(testCollision(obb1,obb2,mtv))
+                if(testCollision(obb1,obb2,mtv)) // process collision result
                 {
                     transform->transformable->move(mtv);
                     obb1.move(mtv);
                     v->x *= bounce;
                     v->y *= bounce;
+
+                    sf::Shader* shader = ((Shader*)(entityManager->getComponent(*jtr,"Shader")))->shader;
+                    if(shader == nullptr) continue;
+                    shader->setUniform("source",
+                            sf::Vector2f(obb1.getPosition().x + obb1.getSize().x*0.5f,
+                                         obb1.getPosition().y + obb1.getSize().y*0.5f));
+                    shader->setUniform("strength", 1.0f);
                 }
             }
         }

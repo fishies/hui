@@ -3,12 +3,39 @@
 #include "systems.hpp"
 #include <SFML/Graphics.hpp>
 
+void addHWall(EntityManager &entityManager, const sf::VideoMode &screenSize, sf::Shader *shader, float *hitMag, int x, int y)
+{
+    sf::RectangleShape* wall = new sf::RectangleShape();
+    wall->setFillColor(sf::Color::Black);
+    wall->move(screenSize.width*(5.0f/100.0f),screenSize.height*(5.0f/100.0f));
+    wall->move(screenSize.width*(10.0f/100.0f)*x,screenSize.height*(12.75f/100.0f)*y);
+    wall->setSize(sf::Vector2f(screenSize.width*(10.0f/100.0f),
+                               screenSize.height*(2.0f/100.0f)));
+    entityManager.addEntity({new Drawable(wall),
+                             new Transform(wall),
+                             new Collider(wall),
+                             new Shader(shader, hitMag)});
+}
+
+void addVWall(EntityManager &entityManager, const sf::VideoMode &screenSize, sf::Shader *shader, float *hitMag, int x, int y)
+{
+    sf::RectangleShape* wall = new sf::RectangleShape();
+    wall->setFillColor(sf::Color::Black);
+    wall->move(screenSize.width*(5.0f/100.0f),screenSize.height*(5.0f/100.0f));
+    wall->move(screenSize.width*(10.0f/100.0f)*x,screenSize.height*(12.75f/100.0f)*y);
+    wall->setSize(sf::Vector2f(screenSize.width*(2.0f/100.0f),
+                               screenSize.height*(12.75f/100.0f)));
+    entityManager.addEntity({new Drawable(wall),
+                             new Transform(wall),
+                             new Collider(wall),
+                             new Shader(shader, hitMag)});
+}
+
 int main()
 {
     EntityManager entityManager;
     sf::VideoMode screenSize = sf::VideoMode::getFullscreenModes()[0];
     sf::RenderWindow window(screenSize, "hui", sf::Style::Fullscreen);
-    
 
     sf::Shader shader;
     shader.loadFromFile("hit.frag", sf::Shader::Fragment);
@@ -25,6 +52,7 @@ int main()
 
     sf::Clock shaderClock;
 
+    // Player Avatar
     sf::RectangleShape player;
     player.setFillColor(sf::Color::Black);
     player.setSize(sf::Vector2f(screenSize.width*(1.0f/50.0f),
@@ -32,8 +60,6 @@ int main()
     player.move(screenSize.width/2 - player.getSize().x/2,
                 screenSize.height/2 - player.getSize().y/2);
 
-    
-    // Player Avatar
     entityManager.addEntity({new Drawable(&player),
                              new Velocity(0.0f,0.0f),
                              new Transform(&player),
@@ -91,6 +117,15 @@ int main()
                              new Transform(&ewall),
                              new Collider(&ewall),
                              new Shader(&shader, &hitMag)});
+
+    for(int i = 1; i < 9; ++i)
+    {
+        addVWall(entityManager, screenSize, &shader, &hitMag, i, 3);
+    }
+    for(int i = 1; i < 7; ++i)
+    {
+        addHWall(entityManager, screenSize, &shader, &hitMag, 3, i);
+    }
 
     for(;
         window.isOpen();

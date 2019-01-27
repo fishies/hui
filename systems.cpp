@@ -41,7 +41,7 @@ void MovementSystem::tick()
 {
     const float dv = 0.125f;
     const float bounce = -1.25f;
-    const float vcap = 8.0f;
+    const float vcap = 6.0f;
     for(auto itr = entitiesWithComponent["Velocity"].begin();
         itr != entitiesWithComponent["Velocity"].end(); ++itr)
     {
@@ -82,6 +82,8 @@ void MovementSystem::tick()
             obb1.setPosition(shPtr->getGlobalBounds().left,shPtr->getGlobalBounds().top);
             obb1.setSize(sf::Vector2f(shPtr->getGlobalBounds().width,shPtr->getGlobalBounds().height));
 
+            float* strength;
+
             for(auto jtr = entitiesWithComponent["Collider"].begin();
                 jtr != entitiesWithComponent["Collider"].end(); ++jtr)
             {
@@ -94,6 +96,7 @@ void MovementSystem::tick()
 
                 sf::Vector2f mtv;
                 Shader* shader = ((Shader*)(entityManager->getComponent(*jtr,"Shader")));
+                strength = shader->strength;
 
                 if(testCollision(obb1,obb2,mtv)) // process collision result
                 {
@@ -111,16 +114,17 @@ void MovementSystem::tick()
                     shader->shader->setUniform("source",
                             sf::Vector2f(obb1.getPosition().x + obb1.getSize().x*0.5f,
                                          obb1.getPosition().y + obb1.getSize().y*0.5f));
-                    *(shader->strength) = 100.0f;
+                    *strength = 100.0f;
 
                     break;
                 }
 
                 if(shader == nullptr) continue;
-                shader->shader->setUniform("strength", *(shader->strength));
-                *(shader->strength) -= 1.0f;
-                if(*(shader->strength) < 0.0f) *(shader->strength) = 0.0f;
+                shader->shader->setUniform("strength", *strength);
             }
+            
+            *strength -= 4.0f;
+            if(*strength < 0.0f) *strength = 0.0f;
         }
     }
 }

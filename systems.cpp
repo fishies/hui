@@ -112,6 +112,8 @@ void MovementSystem::tick()
                             sf::Vector2f(obb1.getPosition().x + obb1.getSize().x*0.5f,
                                          obb1.getPosition().y + obb1.getSize().y*0.5f));
                     *(shader->strength) = 100.0f;
+
+                    break;
                 }
 
                 if(shader == nullptr) continue;

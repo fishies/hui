@@ -66,6 +66,32 @@ int main()
                              new Collider(&swall),
                              new Shader(&shader, &hitMag)});
 
+    // Outer Wall West
+    sf::RectangleShape wwall;
+    wwall.setFillColor(sf::Color::Black);
+    wwall.move(screenSize.width*(2.5f/100.0f),
+               screenSize.height*(2.5f/100.0f));
+    wwall.setSize(sf::Vector2f(screenSize.width*(2.5f/100.0f),
+                               screenSize.height*(95.0f/100.0f)));
+
+    entityManager.addEntity({new Drawable(&wwall),
+                             new Transform(&wwall),
+                             new Collider(&wwall),
+                             new Shader(&shader, &hitMag)});
+
+    // Outer Wall East
+    sf::RectangleShape ewall;
+    ewall.setFillColor(sf::Color::Black);
+    ewall.move(screenSize.width*(95.0f/100.0f),
+               screenSize.height*(2.5f/100.0f));
+    ewall.setSize(sf::Vector2f(screenSize.width*(2.5f/100.0f),
+                               screenSize.height*(95.0f/100.0f)));
+
+    entityManager.addEntity({new Drawable(&ewall),
+                             new Transform(&ewall),
+                             new Collider(&ewall),
+                             new Shader(&shader, &hitMag)});
+
     for(;
         window.isOpen();
         )

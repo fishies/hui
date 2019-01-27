@@ -5,6 +5,7 @@
 
 void addHWall(EntityManager &entityManager, const sf::VideoMode &screenSize, sf::Shader *shader, float *hitMag, int x, int y)
 {
+    if(y == 0) return;
     sf::RectangleShape* wall = new sf::RectangleShape();
     wall->setFillColor(sf::Color::Black);
     wall->move(screenSize.width*(5.0f/100.0f),screenSize.height*(5.0f/100.0f));
@@ -30,6 +31,20 @@ void addVWall(EntityManager &entityManager, const sf::VideoMode &screenSize, sf:
                              new Transform(wall),
                              new Collider(wall),
                              new Shader(shader, hitMag)});
+}
+
+void generateMaze(EntityManager &entityManager, const sf::VideoMode &screenSize, sf::Shader *shader, float *hitMag, const std::string &dna)
+{
+    for(int i = 0; i < 9; ++i)
+    {
+        for(int j = 0; j < 7; ++j)
+        {
+            if((dna.at(i+j*9)-'0')&1)
+                addVWall(entityManager, screenSize, shader, hitMag, i, j);
+            if((dna.at(i+j*9)-'0')&2)
+                addHWall(entityManager, screenSize, shader, hitMag, i, j);
+        }
+    }
 }
 
 int main()
@@ -119,15 +134,12 @@ int main()
                              new Collider(&ewall),
                              new Shader(&shader, &hitMag)});
 
-    for(int i = 0; i < 9; ++i)
-    {
-        for(int j = 0; j < 7; ++j)
-        {
-            //if(i < 9)
-            addVWall(entityManager, screenSize, &shader, &hitMag, i, j);
-            addHWall(entityManager, screenSize, &shader, &hitMag, i, j);
-        }
-    }
+    generateMaze(entityManager, screenSize, &shader, &hitMag,
+    "000100010032122310202313010122001230112101100212013030030300220");
+//   0        1        2        3        4        5        6        
+//  "333333333333333333333333333333333333333333333333333333333333333"
+// 1 vertical
+// 2 horizontal
 
     for(;
         window.isOpen();

@@ -15,7 +15,7 @@ hui: main.o
 main.o: ecs.o systems.o components.o main.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c main.cpp $(LDLIBS)
 
-systems.o: systems.hpp components.hpp components.o
+systems.o: systems.hpp components.hpp components.o obb.hpp obb.o
 	$(CXX) $(CXXFLAGS) -o $@ -c systems.cpp $(LDLIBS)
 
 components.o: components.hpp ecs.hpp ecs.o
@@ -23,3 +23,6 @@ components.o: components.hpp ecs.hpp ecs.o
 
 ecs.o: ecs.hpp
 	$(CXX) $(CXXFLAGS) -o $@ -c ecs.cpp $(LDLIBS)
+
+obb.o: obb.hpp
+	$(CXX) $(CXXFLAGS) -o $@ -c obb.hpp $(LDLIBS)

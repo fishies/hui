@@ -52,13 +52,11 @@ struct Velocity : Component
     {}
 };
 
-struct Collision : Component
+struct Collider : Component
 {
-    //point of incidence
-    int x;
-    int y;
-    
-    Collision(int c_x = 0, int c_y = 0)
-    : Component("Collision"), x(c_x), y(c_y)
+    sf::Shape* shape;
+
+    Collider(sf::Shape* shape)
+    : Component("Collider"), shape(shape)
     {}
 };

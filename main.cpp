@@ -19,10 +19,21 @@ int main()
 
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Black);
+
+    sf::RectangleShape wall;
+    wall.setFillColor(sf::Color::Black);
+    wall.move(400.f,400.f);
+    wall.setSize(sf::Vector2f(200.f,200.f));
+
     entityManager.addEntity({new Drawable(&shape),
                              new Velocity(0.0f,0.0f),
                              new Transform(&shape),
-                             new PlayerController()});
+                             new PlayerController(),
+                             new Collider(&shape)});
+
+    entityManager.addEntity({new Drawable(&wall),
+                             new Transform(&wall),
+                             new Collider(&wall)});
 
     for(;
         window.isOpen();
@@ -39,7 +50,6 @@ int main()
             movementSystem.tick();
             window.display();
         }
-
 
         for(sf::Event event;window.pollEvent(event);)
         {

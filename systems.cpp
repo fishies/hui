@@ -1,7 +1,10 @@
 #include "components.hpp"
 #include "systems.hpp"
+#include "obb.hpp"
 #include <SFML/Graphics.hpp>
 #include <cmath>
+
+#include <iostream>
 
 DrawSystem::DrawSystem(EntityManager* entityAdmin, sf::RenderWindow* target) : System(entityAdmin), target(target)
 {
@@ -27,11 +30,13 @@ MovementSystem::MovementSystem(EntityManager *entityAdmin) : System(entityAdmin)
     subscribe("WorldPosition");
     subscribe("Transform");
     subscribe("Velocity");
+    subscribe("Collider");
 }
 
 void MovementSystem::tick()
 {
     const float dv = 0.125f;
+    const float bounce = -1.25f;
     for(auto itr = entitiesWithComponent["Velocity"].begin();
         itr != entitiesWithComponent["Velocity"].end(); ++itr)
     {
@@ -62,6 +67,35 @@ void MovementSystem::tick()
             {
                 if((v->y += dv) > 0.0f)
                     v->y = 0.0f;
+            }
+
+            // collision detection
+            //convert bounding box to rectangleshape
+            sf::RectangleShape obb1;
+            sf::Shape* shPtr = ((Collider*)(entityManager->getComponent(*itr,"Collider")))->shape;
+            if(shPtr == nullptr) continue;
+            obb1.setPosition(shPtr->getGlobalBounds().left,shPtr->getGlobalBounds().top);
+            obb1.setSize(sf::Vector2f(shPtr->getGlobalBounds().width,shPtr->getGlobalBounds().height));
+
+            for(auto jtr = entitiesWithComponent["Collider"].begin();
+                jtr != entitiesWithComponent["Collider"].end(); ++jtr)
+            {
+                sf::RectangleShape obb2;
+                sf::Shape* shaPtr = ((Collider*)(entityManager->getComponent(*jtr,"Collider")))->shape;
+                if(shaPtr == nullptr) continue;
+                if(shaPtr == shPtr) continue;
+                obb2.setPosition(shaPtr->getGlobalBounds().left,shaPtr->getGlobalBounds().top);
+                obb2.setSize(sf::Vector2f(shaPtr->getGlobalBounds().width,shaPtr->getGlobalBounds().height));
+
+                sf::Vector2f mtv;
+
+                if(testCollision(obb1,obb2,mtv))
+                {
+                    transform->transformable->move(mtv);
+                    obb1.move(mtv);
+                    v->x *= bounce;
+                    v->y *= bounce;
+                }
             }
         }
     }

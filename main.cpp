@@ -6,12 +6,13 @@
 int main()
 {
     EntityManager entityManager;
-    sf::RenderWindow window(sf::VideoMode::getFullscreenModes()[0],
-                            "hui", sf::Style::Fullscreen);
+    sf::VideoMode screenSize = sf::VideoMode::getFullscreenModes()[0];
+    sf::RenderWindow window(screenSize, "hui", sf::Style::Fullscreen);
+    
 
     sf::Shader shader;
     shader.loadFromFile("hit.frag", sf::Shader::Fragment);
-    shader.setUniform("screenHeight",(float)((int)(sf::VideoMode::getFullscreenModes()[0].height)));
+    shader.setUniform("screenHeight",(float)((int)(screenSize.height)));
 
     DrawSystem drawSystem(&entityManager, &window);
     MovementSystem movementSystem(&entityManager);
@@ -23,20 +24,26 @@ int main()
 
     sf::Clock shaderClock;
 
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Black);
+    sf::RectangleShape player;
+    player.setFillColor(sf::Color::Black);
+    player.setSize(sf::Vector2f(screenSize.width*(1.0f/50.0f),
+                                screenSize.width*(1.0f/50.0f)));
+    player.move(screenSize.width/2 + player.getSize().x/2,
+                screenSize.height/2 + player.getSize().y/2);
 
     sf::RectangleShape wall;
     wall.setFillColor(sf::Color::Black);
     wall.move(400.f,400.f);
     wall.setSize(sf::Vector2f(1000.f,600.f));
 
-    entityManager.addEntity({new Drawable(&shape),
+    // Player Avatar
+    entityManager.addEntity({new Drawable(&player),
                              new Velocity(0.0f,0.0f),
-                             new Transform(&shape),
+                             new Transform(&player),
                              new PlayerController(),
-                             new Collider(&shape)});
+                             new Collider(&player)});
 
+    // Outer Wall 1
     entityManager.addEntity({new Drawable(&wall),
                              new Transform(&wall),
                              new Collider(&wall),

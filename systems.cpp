@@ -41,6 +41,7 @@ void MovementSystem::tick()
 {
     const float dv = 0.125f;
     const float bounce = -1.25f;
+    const float vcap = 5.0f;
     for(auto itr = entitiesWithComponent["Velocity"].begin();
         itr != entitiesWithComponent["Velocity"].end(); ++itr)
     {
@@ -100,7 +101,12 @@ void MovementSystem::tick()
                     obb1.move(mtv);
                     v->x *= bounce;
                     v->y *= bounce;
-                    
+
+                    if(v->x > vcap) v->x = vcap;
+                    if(v->x < -vcap) v->x = -vcap;
+                    if(v->y > vcap) v->y = vcap;
+                    if(v->y < -vcap) v->y = -vcap;
+
                     if(shader == nullptr) continue;
                     shader->shader->setUniform("source",
                             sf::Vector2f(obb1.getPosition().x + obb1.getSize().x*0.5f,
@@ -108,6 +114,7 @@ void MovementSystem::tick()
                     shader->strength = 250.0f;
                 }
 
+                if(shader == nullptr) continue;
                 shader->shader->setUniform("strength", shader->strength);
                 shader->strength -= 1.0f;
                 if(shader->strength < 0.0f)

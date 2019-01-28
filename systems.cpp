@@ -89,21 +89,27 @@ void Reset::tick()
     for(auto itr = entitiesWithComponent["Home"].begin();
         itr != entitiesWithComponent["Home"].end(); ++itr)
     {
-        Drawable* home = (Drawable*)(entityManager->getComponent(*itr,"Drawable"));
+        Home* home = (Home*)(entityManager->getComponent(*itr,"Home"));
         if(home == nullptr) continue;
         for(auto jtr = entitiesWithComponent["PlayerController"].begin();
             jtr != entitiesWithComponent["PlayerController"].end(); ++jtr)
         {
-            PlayerController* control = (PlayerController*)(entityManager->getComponent(*jtr,"PlayerController"));
-            if(control != nullptr && !(control->inGame))
+            sf::Shape* pcc = ((Collider*)(entityManager->getComponent(*jtr,"Collider")))->shape;
+            if(((PlayerController*)(entityManager->getComponent(*jtr,"PlayerController"))) != nullptr &&
+               !((PlayerController*)(entityManager->getComponent(*jtr,"PlayerController")))->inGame)
             {
                 return;
             }
+            
+            if(pcc == nullptr) continue;
 
-            Drawable* pc = (Drawable*)(entityManager->getComponent(*jtr,"PlayerController"));
-            if(pc == nullptr) continue;
-            if(((sf::RectangleShape*)(home->drawable))->getGlobalBounds().intersects
-                (((sf::RectangleShape*)(pc->drawable))->getGlobalBounds()))
+            sf::RectangleShape* box1 = (home->home);
+            sf::RectangleShape box2;
+            box2.setPosition(pcc->getGlobalBounds().left,pcc->getGlobalBounds().top);
+            box2.setSize(sf::Vector2f(pcc->getGlobalBounds().width,pcc->getGlobalBounds().height));
+            sf::Vector2f mtv;
+
+            if(testCollision(*box1,box2,mtv))
             {
                 reset = true;
             }
@@ -119,7 +125,6 @@ void Reset::tick()
             if(tutUI != nullptr) tutUI->visible = true;
         }
         //reset player controller and position of player
-        /*
         for(auto itr = entitiesWithComponent["PlayerController"].begin();
             itr != entitiesWithComponent["PlayerController"].end(); ++itr)
         {
@@ -131,15 +136,11 @@ void Reset::tick()
                 playerTransform->transformable->setPosition(xOrigin,yOrigin);
             }
         }
-        */
         //erase level
-        /*
-        for(auto itr = entitiesWithComponent["Level"].begin();
-            itr != entitiesWithComponent["Level"].end(); ++itr)
+        for(;entitiesWithComponent["Level"].size() > 0;)
         {
-            entityManager->removeEntity(*itr);
+            entityManager->removeEntity(*(entitiesWithComponent["Level"].begin()));
         }
-        */
     }
 }
 

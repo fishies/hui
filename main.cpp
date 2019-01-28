@@ -56,8 +56,8 @@ int main()
     home.move(screenSize.width/2 - home.getSize().x/2,
               screenSize.height/2 - home.getSize().y/2);
 
-    entityManager.addEntity({new Drawable(&home)/*,
-                             new Home()*/});
+    entityManager.addEntity({new Drawable(&home),
+                             new Home(&home)});
 
     // Controls
     sf::RectangleShape upBox, downBox, leftBox, rightBox;

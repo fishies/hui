@@ -65,8 +65,10 @@ struct Shader : Component
 
 struct Home : Component
 {
-    Home()
-    : Component("Home")
+    sf::RectangleShape* home;
+
+    Home(sf::RectangleShape* home)
+    : Component("Home"), home(home)
     {}
 };
 

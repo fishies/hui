@@ -3,6 +3,7 @@ CXXFLAGS = -std=c++17 -Wall -fext-numeric-literals
 LDLIBS = -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system
 
 all:
+	echo "1" > a.o
 	rm *.o
 	make hui
 
